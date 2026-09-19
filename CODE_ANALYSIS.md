@@ -227,3 +227,106 @@ Many files reference multiple removable subsystems. Key overlap areas:
 *Analysis based on WooCommerce 11.1.1, Subscriptions 9.2.0, Memberships 1.30.0, Name Your Price 3.8.2, Subscriptions Gifting 2.9.1*
 *Generated: 2026-09-19*
 
+
+
+---
+
+## 7. Newspack Integration Analysis
+
+### Newspack's WooCommerce Layer
+
+The [Postdated/Newspack](https://github.com/Postdated/Newspack) Bedrock installation has a deep WooCommerce integration layer in `newspack-plugin`. NewsWoo must maintain full API compatibility with these classes.
+
+### 7A: WooCommerce_Connection (newspack-plugin)
+
+**File:** `includes/plugins/woocommerce/class-woocommerce-connection.php`
+
+This is the central integration class. It:
+- Defines `ACTIVE_SUBSCRIPTION_STATUSES` (`active`, `pending-cancel`)
+- Defines `ACTIVE_ORDER_STATUSES` (`processing`, `completed`)
+- Defines `FORMER_SUBSCRIBER_STATUSES` (`on-hold`, `cancelled`, `expired`)
+- Suppresses WooCommerce's setup wizard (`woocommerce_prevent_automatic_wizard_redirect`)
+- Disables legacy form checkout
+- Forces subscription switching and failed payment retry
+- Hooks into order completion for reader display name updates
+- Disables related products
+- Handles Stripe payment method saving
+- Custom receipt and cancellation emails
+- Rate limiting on checkout and payment methods
+
+**Compatibility requirement:** All `woocommerce_*` hooks and `WC_Subscription` status constants must remain unchanged.
+
+### 7B: Modal_Checkout (newspack-blocks)
+
+**File:** `includes/class-modal-checkout.php`
+
+Newspack's modal checkout system provides a streamlined purchase flow that bypasses the standard cart/checkout pages. It:
+- Renders checkout in a modal overlay on article pages
+- Handles coupon auto-application from Checkout Button blocks
+- Manages gift subscription flow
+- Rate limits checkout attempts
+- Works with Stripe, WCPAY, and other gateways
+- Enqueues specific scripts (`newspack-wc`, `newspack-ui`, etc.)
+
+**Compatibility requirement:** NewsWoo must keep the WooCommerce checkout AJAX endpoints and order processing hooks that the modal checkout depends on.
+
+### 7C: Content_Gate & Metering (newspack-plugin)
+
+**Files:** `includes/content-gate/class-content-gate.php`, `class-metering.php`, `class-access-rules.php`
+
+The content gating system:
+- Uses a custom post type (`np_content_gate`) for gate layouts
+- Implements metered access (X free articles before paywall)
+- Supports tiered paywalls (one-tier, two-tier, three-tier patterns)
+- Integrates with email verification
+- Uses `Access_Rules` and `Access_Attribution` for per-post access decisions
+
+**Compatibility requirement:** NewsWoo subscription and membership data must be readable by Newspack's access rule system.
+
+### 7D: Data Events & ESP Sync
+
+**Files:** `includes/data-events/listeners.php`, `class-contact-sync-connector.php`
+
+Newspack fires data events on WooCommerce actions (order completed, subscription changed, etc.) and syncs them to email service providers. Key hooks:
+- `woocommerce_order_status_completed` → contact sync
+- Subscription status changes → ESP segment updates
+- User registration → contact creation
+
+**Compatibility requirement:** All order and subscription status change hooks must fire with the same parameters.
+
+### 7E: Additional WooCommerce Integration Files
+
+| File | Purpose |
+|------|---------|
+| `class-woocommerce-logs.php` | Custom logging |
+| `class-woocommerce-cli.php` | WP-CLI commands |
+| `class-woocommerce-cover-fees.php` | Processing fee coverage |
+| `class-woocommerce-emails.php` | Custom email templates |
+| `class-woocommerce-email-style-sync.php` | Email styling |
+| `class-woocommerce-order-utm.php` | UTM tracking on orders |
+| `class-woocommerce-products.php` | Product utilities |
+| `class-woocommerce-product-validator.php` | Product validation |
+| `class-woocommerce-duplicate-orders.php` | Duplicate order prevention |
+| `class-woocommerce-update-payment-notice.php` | Payment update notices |
+| `class-woocommerce-custom-currency-symbol.php` | Currency display |
+
+---
+
+## 8. Stripping Priority (Updated with Newspack Context)
+
+The recommended order now accounts for Newspack integration risk:
+
+1. **Shipping** (Phase 2A) — Self-contained, no Newspack dependencies
+2. **Retail Product Types** (Phase 2F) — Clean removal, Newspack uses simple/subscription products only
+3. **Geolocation** (partial 2E) — No Newspack dependency
+4. **Tax Simplification** (rest of 2E) — Newspack uses billing-only tax
+5. **Inventory** (Phase 2B) — Newspack doesn't use stock management
+6. **Coupon Simplification** (Phase 2D) — Keep basic coupons, remove shipping coupons
+7. **Cart Refactor** (Phase 2C) — CRITICAL: Must preserve modal checkout compatibility
+8. **Newspack Integration Testing** (Phase 3) — Validate after each stripping phase
+
+---
+
+*Analysis based on WooCommerce 11.1.1, Subscriptions 9.2.0, Memberships 1.30.0, Name Your Price 3.8.2, Subscriptions Gifting 2.9.1, Newspack Plugin 6.52.0-alpha.1*
+*Generated: 2026-09-19*
+

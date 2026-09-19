@@ -1,6 +1,6 @@
 # NewsWoo Roadmap
 
-A phased plan to transform WooCommerce into a lean, newsroom-focused publishing platform.
+A phased plan to transform WooCommerce into a lean, newsroom-focused publishing platform for [Newspack Bedrock](https://github.com/Postdated/Newspack).
 
 ---
 
@@ -13,6 +13,8 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 - [x] Analyze Name Your Price 3.8.2 (10,325 LOC)
 - [x] Analyze Subscriptions Gifting 2.9.1 (7,092 LOC)
 - [x] Map removable subsystems (shipping, inventory, coupons, tax, retail product types)
+- [x] Audit Newspack's WooCommerce integration layer (12+ classes)
+- [x] Map Newspack compatibility requirements (hooks, filters, class interfaces)
 - [x] Create brand assets (logos, icon, font bundle)
 - [x] Create project README and issue templates
 - [x] Create code analysis report
@@ -66,8 +68,48 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 - [ ] Clean up product type selectors in admin
 - **Impact:** ~79 files reference these product types
 
-## Phase 3: Subscription-First Architecture 🔧
-**Goal:** Rebuild the product model around subscriptions and memberships.
+## Phase 3: Newspack Integration 🔌
+**Goal:** Ensure NewsWoo is a seamless drop-in for Newspack Bedrock.
+
+### 3A: Hook & Filter Compatibility
+- [ ] Audit all `woocommerce_*` hooks that Newspack's `WooCommerce_Connection` uses
+- [ ] Verify subscription status constants match Newspack's `ACTIVE_SUBSCRIPTION_STATUSES`
+- [ ] Ensure order status hooks fire correctly for `Contact_Sync_Connector`
+- [ ] Test `WooCommerce_Cover_Fees` integration
+- [ ] Test `WooCommerce_Product_Validator` rules
+- [ ] Verify `WooCommerce_Emails` custom receipt and cancellation emails work
+- [ ] Ensure Stripe payment method saving works (`wc_stripe_save_to_subs_checked`)
+
+### 3B: Modal Checkout Compatibility
+- [ ] Verify `Modal_Checkout` from newspack-blocks works with NewsWoo
+- [ ] Test donate block checkout flow
+- [ ] Test checkout button block flow
+- [ ] Verify coupon auto-application in modal
+- [ ] Test gift subscription flow in modal
+- [ ] Ensure rate limiting works on checkout
+
+### 3C: Content Gating Compatibility
+- [ ] Verify `Content_Gate` paywall renders correctly
+- [ ] Test metering system with NewsWoo subscriptions
+- [ ] Verify `Access_Rules` and `Access_Attribution` work
+- [ ] Test premium newsletter gating
+- [ ] Verify email verification prompt works with NewsWoo accounts
+
+### 3D: Data Events & ESP Sync
+- [ ] Verify `data-events/listeners.php` fires for NewsWoo orders
+- [ ] Test `Memberships` data events class
+- [ ] Verify `WooUser_Registration` data events
+- [ ] Test contact sync connector with NewsWoo subscription data
+- [ ] Verify Salesforce integration receives correct data
+
+### 3E: Composer Integration
+- [ ] Package NewsWoo as a Composer package (`type: wordpress-plugin`)
+- [ ] Add to Newspack's `composer.json` as a path repository or WP Packages dependency
+- [ ] Verify `composer/installers` puts it in `web/app/plugins/`
+- [ ] Test alongside all 20 Newspack packages
+
+## Phase 4: Subscription-First Architecture 🔧
+**Goal:** Merge subscription plugins into core and build newsroom-native flows.
 
 - [ ] Merge Subscriptions plugin into core (de-pluginize)
 - [ ] Merge Memberships plugin into core
@@ -78,7 +120,7 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 - [ ] Create streamlined My Account dashboard for subscription management
 - [ ] Build subscription tier selector UI component
 
-## Phase 4: Newsroom Features 📰
+## Phase 5: Newsroom Features 📰
 **Goal:** Add publisher-specific functionality.
 
 - [ ] Paywall integration hooks for Newspack
@@ -90,7 +132,7 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 - [ ] Donation flow with Name Your Price
 - [ ] Apple Pay / Google Pay express checkout
 
-## Phase 5: Performance & Polish ⚡
+## Phase 6: Performance & Polish ⚡
 **Goal:** Optimize for speed and developer experience.
 
 - [ ] Database schema optimization (remove unused tables)
@@ -102,13 +144,13 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 - [ ] Developer documentation and hook reference
 - [ ] CI/CD pipeline setup
 
-## Phase 6: Testing & Release 🚀
+## Phase 7: Testing & Release 🚀
 **Goal:** Production-ready release.
 
 - [ ] Unit tests for stripped subsystems (verify clean removal)
 - [ ] Integration tests for subscription flows
 - [ ] Payment gateway testing (Stripe, PayPal)
-- [ ] Newspack compatibility testing
+- [ ] Newspack compatibility testing (all 20 packages)
 - [ ] WordPress multisite compatibility
 - [ ] Security audit
 - [ ] Performance benchmarks published
@@ -127,7 +169,8 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 | Coupons | 69 | Medium | 2D |
 | Tax/Geolocation | 80 | Medium | 2E |
 | Retail Products | 79 | Medium | 2F |
-| **Total unique files** | **~320** | — | — |
+| Newspack Integration | 12+ classes | Medium | 3 |
+| **Total unique files** | **~330** | — | — |
 
 ### Estimated Effort
 
@@ -135,11 +178,12 @@ A phased plan to transform WooCommerce into a lean, newsroom-focused publishing 
 |-------|----------|----------|
 | Phase 1: Foundation | ✅ Complete | — |
 | Phase 2: Core Stripping | 6-8 weeks | Critical |
-| Phase 3: Subscription Architecture | 4-6 weeks | Critical |
-| Phase 4: Newsroom Features | 4-6 weeks | High |
-| Phase 5: Performance | 2-3 weeks | Medium |
-| Phase 6: Testing & Release | 3-4 weeks | Critical |
-| **Total** | **~20-27 weeks** | — |
+| Phase 3: Newspack Integration | 3-4 weeks | Critical |
+| Phase 4: Subscription Architecture | 4-6 weeks | Critical |
+| Phase 5: Newsroom Features | 4-6 weeks | High |
+| Phase 6: Performance | 2-3 weeks | Medium |
+| Phase 7: Testing & Release | 3-4 weeks | Critical |
+| **Total** | **~23-31 weeks** | — |
 
 ---
 
